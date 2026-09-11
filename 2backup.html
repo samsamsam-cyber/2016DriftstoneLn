@@ -1,0 +1,324 @@
+<title>Two-Layer Backup Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#EDF0F2;
+    --surface:#FFFFFF;
+    --surface-2:#F4F6F7;
+    --ink:#172230;
+    --ink-soft:#516170;
+    --line:#C7D0D6;
+    --accent-local:#93601F;
+    --accent-local-soft:#F1E4CC;
+    --accent-cloud:#2E5A96;
+    --accent-cloud-soft:#DCE7F5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10161D;
+      --surface:#182129;
+      --surface-2:#1C262F;
+      --ink:#E8EDF1;
+      --ink-soft:#A0AFBA;
+      --line:#2C3944;
+      --accent-local:#D6923F;
+      --accent-local-soft:#3B2D18;
+      --accent-cloud:#7BA3DD;
+      --accent-cloud-soft:#1C2C40;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161D;
+    --surface:#182129;
+    --surface-2:#1C262F;
+    --ink:#E8EDF1;
+    --ink-soft:#A0AFBA;
+    --line:#2C3944;
+    --accent-local:#D6923F;
+    --accent-local-soft:#3B2D18;
+    --accent-cloud:#7BA3DD;
+    --accent-cloud-soft:#1C2C40;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    padding:0 20px;
+  }
+  .page{
+    max-width:900px;
+    margin:0 auto;
+    padding-block:48px 64px;
+    display:flex;
+    flex-direction:column;
+    gap:40px;
+  }
+  header{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent-cloud);
+  }
+  h1{
+    font-family:"Zilla Slab",Georgia,serif;
+    font-weight:700;
+    font-size:clamp(28px,4.5vw,40px);
+    line-height:1.1;
+    margin:0;
+    text-wrap:balance;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    max-width:62ch;
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  figure{
+    margin:0;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 20px 16px;
+  }
+  .diagram{
+    width:100%;
+    height:auto;
+    display:block;
+    color:var(--ink);
+  }
+  .diagram text{
+    font-family:"IBM Plex Sans",sans-serif;
+    fill:currentColor;
+  }
+  .diagram .mono{
+    font-family:"IBM Plex Mono",monospace;
+  }
+  .diagram .title-text{
+    font-weight:600;
+  }
+  .diagram .soft{
+    fill:var(--ink-soft);
+  }
+  .diagram .local{
+    color:var(--accent-local);
+  }
+  .diagram .cloud{
+    color:var(--accent-cloud);
+  }
+  figcaption{
+    font-size:13px;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-top:10px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:560px){
+    .stats{grid-template-columns:1fr;}
+  }
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px 22px;
+    border-left:4px solid var(--card-accent);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .stat-card.local{--card-accent:var(--accent-local);}
+  .stat-card.cloud{--card-accent:var(--accent-cloud);}
+  .stat-card .label{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .stat-card .value{
+    font-family:"Zilla Slab",serif;
+    font-weight:700;
+    font-size:30px;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-card.local .value{color:var(--accent-local);}
+  .stat-card.cloud .value{color:var(--accent-cloud);}
+  .stat-card .detail{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+
+  .prose{
+    max-width:66ch;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .prose h2{
+    font-family:"Zilla Slab",serif;
+    font-weight:600;
+    font-size:20px;
+    margin:8px 0 -4px;
+  }
+  .prose p{
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0;
+  }
+  .prose strong{
+    color:var(--ink);
+  }
+  .prose .note{
+    font-size:14px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <div class="eyebrow">Server protection recommendation</div>
+    <h1>A daily image, plus a continuous copy of what changes</h1>
+    <p class="lede">Two backup layers running on different schedules close two different gaps: one guards the whole machine, the other guards the last few minutes of work.</p>
+  </header>
+
+  <figure>
+    <svg class="diagram" viewBox="0 0 1000 600" role="img" aria-label="Diagram showing the server splitting into two backup paths: a nightly full-disk image sent to local backup storage, and continuous change-triggered uploads sent to cloud storage, with both able to restore the system.">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <!-- Server -->
+      <rect x="360" y="20" width="280" height="64" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5"/>
+      <text x="500" y="47" text-anchor="middle" class="title-text" font-size="15">Server — production PC</text>
+      <text x="500" y="66" text-anchor="middle" class="soft" font-size="12">whole hard drive + live data repository</text>
+
+      <!-- Branch lines -->
+      <path d="M420,84 L200,120" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M580,84 L800,120" fill="none" stroke="currentColor" stroke-width="1.5"/>
+
+      <!-- Left (local) vertical track -->
+      <line x1="200" y1="120" x2="200" y2="203" stroke="var(--accent-local)" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="200" y="139" text-anchor="middle" class="mono local" font-size="10.5" letter-spacing="0.06em">TRIGGER: NIGHTLY SCHEDULE</text>
+
+      <!-- Clock icon: once-daily cadence -->
+      <g class="local">
+        <circle cx="200" cy="255" r="46" fill="var(--surface)" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M200,255 L200,235 A20,20 0 0 1 217.3,245 Z" fill="currentColor" opacity="0.22"/>
+        <line x1="200" y1="209" x2="200" y2="217" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="246" y1="255" x2="238" y2="255" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="200" y1="301" x2="200" y2="293" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="154" y1="255" x2="162" y2="255" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="239.8" y1="232" x2="232.9" y2="236" stroke="currentColor" stroke-width="2.5"/>
+        <line x1="200" y1="255" x2="200" y2="219" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="200" y1="255" x2="224.2" y2="241" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="200" cy="255" r="2.5" fill="currentColor"/>
+      </g>
+      <text x="200" y="322" text-anchor="middle" class="soft" font-size="12">
+        <tspan x="200" dy="0">one full image captured</tspan>
+        <tspan x="200" dy="15">every 24 hours (e.g. 2:00 am)</tspan>
+      </text>
+
+      <line x1="200" y1="345" x2="200" y2="346" stroke="var(--accent-local)" stroke-width="1.5"/>
+      <line x1="200" y1="342" x2="200" y2="349" stroke="var(--accent-local)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Left storage box -->
+      <rect x="80" y="352" width="240" height="80" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="80" y="352" width="5" height="80" fill="var(--accent-local)"/>
+      <text x="200" y="382" text-anchor="middle" class="title-text local" font-size="14">Local / offsite backup drive</text>
+      <text x="200" y="402" text-anchor="middle" class="soft" font-size="11.5">
+        <tspan x="200" dy="0">complete disk image</tspan>
+        <tspan x="200" dy="15">(bootable clone of the whole PC)</tspan>
+      </text>
+
+      <!-- Right (cloud) vertical track -->
+      <line x1="800" y1="120" x2="800" y2="203" stroke="var(--accent-cloud)" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="800" y="139" text-anchor="middle" class="mono cloud" font-size="10.5" letter-spacing="0.06em">TRIGGER: FILE CHANGE</text>
+
+      <!-- Pulse icon: continuous cadence -->
+      <g class="cloud">
+        <line x1="732" y1="255" x2="868" y2="255" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+        <polyline points="732,255 750,255 758,233 766,270 772,255 796,255 806,236 814,255 838,255 846,238 854,255 868,255" fill="none" stroke="currentColor" stroke-width="1.75"/>
+        <circle cx="758" cy="233" r="3.5" fill="currentColor"/>
+        <circle cx="806" cy="236" r="3.5" fill="currentColor"/>
+        <circle cx="846" cy="238" r="3.5" fill="currentColor"/>
+      </g>
+      <text x="800" y="322" text-anchor="middle" class="soft" font-size="12">
+        <tspan x="800" dy="0">each changed file uploaded</tspan>
+        <tspan x="800" dy="15">within seconds, all day long</tspan>
+      </text>
+
+      <line x1="800" y1="342" x2="800" y2="349" stroke="var(--accent-cloud)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Right storage box -->
+      <rect x="680" y="352" width="240" height="80" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="915" y="352" width="5" height="80" fill="var(--accent-cloud)"/>
+      <text x="800" y="382" text-anchor="middle" class="title-text cloud" font-size="14">Cloud backup</text>
+      <text x="800" y="402" text-anchor="middle" class="soft" font-size="11.5">
+        <tspan x="800" dy="0">version history of the</tspan>
+        <tspan x="800" dy="15">data-repository files</tspan>
+      </text>
+
+      <!-- Convergence to restore -->
+      <path d="M195,432 L420,498" fill="none" stroke="var(--accent-local)" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <path d="M805,432 L580,498" fill="none" stroke="var(--accent-cloud)" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="290" y="465" text-anchor="middle" class="soft mono" font-size="10">restore whole machine</text>
+      <text x="710" y="465" text-anchor="middle" class="soft mono" font-size="10">restore one file / version</text>
+
+      <rect x="370" y="502" width="260" height="66" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5"/>
+      <text x="500" y="530" text-anchor="middle" class="title-text" font-size="14">Either layer is a restore point</text>
+      <text x="500" y="550" text-anchor="middle" class="soft" font-size="11.5">pick the image for a dead machine, the cloud copy for a lost file</text>
+    </svg>
+    <figcaption>The server's disk is imaged once a night; its data repository is mirrored to the cloud continuously as files change. Either path can bring data back on its own.</figcaption>
+  </figure>
+
+  <div class="stats">
+    <div class="stat-card local">
+      <div class="label">Local daily image — worst-case loss</div>
+      <div class="value">≤ 24 hrs</div>
+      <div class="detail">If the machine dies moments before tonight's run, everything since last night's image is gone — but the whole system is back in one restore.</div>
+    </div>
+    <div class="stat-card cloud">
+      <div class="label">Continuous cloud sync — worst-case loss</div>
+      <div class="value">Seconds–minutes</div>
+      <div class="detail">A file is copied off-site as soon as it's saved, so almost nothing in the data repository is ever more than a moment old.</div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h2>Why one backup isn't enough on its own</h2>
+    <p>A nightly image alone leaves up to a full day of work exposed — if a file is deleted or corrupted at 3pm, tonight's backup will faithfully save that mistake, and there's no earlier copy to fall back on. Continuous cloud sync alone has the opposite problem: it protects files, but it can't hand back a dead machine's operating system, installed software, and settings the way a full image can. Running both together closes each gap with the layer that's actually built for it.</p>
+
+    <h2>What the daily image is for</h2>
+    <p>A full disk image is the layer for catastrophic loss: a failed drive, a ransomware infection, a corrupted operating system. Recovery means restoring a known-good image of the entire machine rather than rebuilding it by hand — reinstalling the OS, every application, every setting — which can turn a one-hour outage into a multi-day one.</p>
+
+    <h2>What continuous cloud backup is for</h2>
+    <p>Cloud sync is the layer for everyday mistakes: an overwritten spreadsheet, a folder deleted before tonight's job ever runs, a document mid-edit when the power goes out. Because uploads happen as changes are made rather than on a schedule, the amount of work ever at risk is measured in minutes, not a day. Storing that copy off-site also means a fire, theft, or flood at the office doesn't take out the backup along with the original.</p>
+
+    <p class="note">Worth confirming with the client up front: how long backups are retained, whether both layers are encrypted in transit and at rest, and a standing schedule to actually test a restore from each — a backup that has never been restored is still just a theory.</p>
+  </div>
+
+</div>
